@@ -9,6 +9,44 @@ export default function Setup({ setup, setSetup }) {
   });
   const [saved, setSaved] = useState(false);
 
+  const fiscale = setup.fiscale || {};
+  const [fiscaleForm, setFiscaleForm] = useState({
+    regime: fiscale.regime || "forfettario",
+    aliquotaIVA: fiscale.aliquotaIVA ?? 0,
+    aliquotaIRPEF: fiscale.aliquotaIRPEF ?? 15,
+    aliquotaINPS: fiscale.aliquotaINPS ?? 26.23,
+    bufferExtra: fiscale.bufferExtra ?? 5,
+  });
+  const [fiscaleSaved, setFiscaleSaved] = useState(false);
+
+  function handleSaveFiscale(e) {
+    e.preventDefault();
+    setSetup((prev) => ({
+      ...prev,
+      fiscale: {
+        regime: fiscaleForm.regime,
+        aliquotaIVA: Number(fiscaleForm.aliquotaIVA),
+        aliquotaIRPEF: Number(fiscaleForm.aliquotaIRPEF),
+        aliquotaINPS: Number(fiscaleForm.aliquotaINPS),
+        bufferExtra: Number(fiscaleForm.bufferExtra),
+      },
+    }));
+    setFiscaleSaved(true);
+    setTimeout(() => setFiscaleSaved(false), 2500);
+  }
+
+  function setFf(field, value) {
+    setFiscaleForm((f) => ({ ...f, [field]: value }));
+    if (field === "regime") {
+      setFiscaleForm((f) => ({
+        ...f,
+        regime: value,
+        aliquotaIVA: value === "forfettario" ? 0 : 22,
+        aliquotaIRPEF: value === "forfettario" ? 15 : 23,
+      }));
+    }
+  }
+
   const [newMese, setNewMese] = useState("");
   const [newLordo, setNewLordo] = useState("");
 
@@ -171,6 +209,72 @@ export default function Setup({ setup, setSetup }) {
             ))}
           </div>
         )}
+      </section>
+
+      <section className={styles.card} style={{ marginTop: "1rem" }}>
+        <h2 className={styles.sectionTitle}>Configurazione fiscale</h2>
+        <form className={styles.form} onSubmit={handleSaveFiscale}>
+          <Field label="Regime fiscale">
+            <select
+              className={styles.input}
+              value={fiscaleForm.regime}
+              onChange={(e) => setFf("regime", e.target.value)}
+            >
+              <option value="forfettario">Forfettario</option>
+              <option value="ordinario">Ordinario</option>
+            </select>
+          </Field>
+          <div className={styles.fiscaleGrid}>
+            <Field label="IVA (%)">
+              <input
+                type="number"
+                className={styles.input}
+                value={fiscaleForm.aliquotaIVA}
+                onChange={(e) => setFiscaleForm((f) => ({ ...f, aliquotaIVA: e.target.value }))}
+                min="0" max="30" step="1"
+              />
+              <span className={styles.inputNote}>
+                {fiscaleForm.regime === "forfettario" ? "0% — esente IVA" : "Di norma 22%"}
+              </span>
+            </Field>
+            <Field label="IRPEF / imp. sostitutiva (%)">
+              <input
+                type="number"
+                className={styles.input}
+                value={fiscaleForm.aliquotaIRPEF}
+                onChange={(e) => setFiscaleForm((f) => ({ ...f, aliquotaIRPEF: e.target.value }))}
+                min="0" max="50" step="0.5"
+              />
+              <span className={styles.inputNote}>
+                {fiscaleForm.regime === "forfettario" ? "15% forfettario (5% start-up)" : "Aliquota marginale stimata"}
+              </span>
+            </Field>
+            <Field label="Contributi INPS (%)">
+              <input
+                type="number"
+                className={styles.input}
+                value={fiscaleForm.aliquotaINPS}
+                onChange={(e) => setFiscaleForm((f) => ({ ...f, aliquotaINPS: e.target.value }))}
+                min="0" max="40" step="0.01"
+              />
+              <span className={styles.inputNote}>26.23% gestione separata</span>
+            </Field>
+            <Field label="Buffer extra (%)">
+              <input
+                type="number"
+                className={styles.input}
+                value={fiscaleForm.bufferExtra}
+                onChange={(e) => setFiscaleForm((f) => ({ ...f, bufferExtra: e.target.value }))}
+                min="0" max="20" step="1"
+              />
+              <span className={styles.inputNote}>Riserva aggiuntiva per imprevisti</span>
+            </Field>
+          </div>
+          <div className={styles.formFooter}>
+            {fiscaleSaved && <span className={styles.savedMsg}>✓ Salvato</span>}
+            <button type="submit" className={styles.saveBtn}>Salva configurazione fiscale</button>
+          </div>
+        </form>
       </section>
 
       <section className={styles.dangerZone}>

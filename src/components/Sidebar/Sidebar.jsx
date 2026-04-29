@@ -3,6 +3,7 @@ import styles from "./Sidebar.module.css";
 const NAV_ITEMS = [
   { id: "dashboard", label: "Dashboard", icon: "◈" },
   { id: "commesse", label: "Commesse", icon: "◻" },
+  { id: "fiscale", label: "Fiscale", icon: "◎" },
   { id: "setup", label: "Setup", icon: "⚙" },
 ];
 

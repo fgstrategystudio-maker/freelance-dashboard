@@ -4,6 +4,13 @@ export const INITIAL_SETUP = {
   incassatoStorico: [
     { mese: "Marzo 2026", lordo: 5250, netto: 3675 },
   ],
+  fiscale: {
+    regime: "forfettario",
+    aliquotaIVA: 0,
+    aliquotaIRPEF: 15,
+    aliquotaINPS: 26.23,
+    bufferExtra: 5,
+  },
 };
 
 export const INITIAL_COMMESSE = [

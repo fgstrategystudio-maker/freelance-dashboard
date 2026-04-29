@@ -192,6 +192,12 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.fiscaleGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
 /* Danger zone */
 .dangerZone {
   margin-top: 2rem;

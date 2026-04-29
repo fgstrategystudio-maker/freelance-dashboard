@@ -4,6 +4,7 @@ import { INITIAL_COMMESSE, INITIAL_SETUP } from "./data/initialData";
 import Sidebar from "./components/Sidebar/Sidebar";
 import Dashboard from "./components/Dashboard/Dashboard";
 import Commesse from "./components/Commesse/Commesse";
+import Fiscale from "./components/Fiscale/Fiscale";
 import Setup from "./components/Setup/Setup";
 import styles from "./App.module.css";
 
@@ -25,6 +26,9 @@ export default function App() {
             setCommesse={setCommesse}
             setup={setup}
           />
+        )}
+        {view === "fiscale" && (
+          <Fiscale setup={setup} />
         )}
         {view === "setup" && (
           <Setup setup={setup} setSetup={setSetup} />
