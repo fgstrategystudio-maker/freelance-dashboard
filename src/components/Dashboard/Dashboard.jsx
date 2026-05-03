@@ -74,6 +74,13 @@ export default function Dashboard({ commesse, setup, setSetup }) {
     (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
   );
 
+  // YTD escluso mese corrente
+  const storicoSenzaMeseCorrente = revenueHistory.filter(
+    (r) => r.mese.toLowerCase() !== meseCorrente.toLowerCase()
+  );
+  const ytdLordo = storicoSenzaMeseCorrente.reduce((s, r) => s + r.lordo, 0);
+  const ytdNetto = storicoSenzaMeseCorrente.reduce((s, r) => s + r.netto, 0);
+
   // — Panoramica annuale —
   const now = new Date();
   const anno = now.getFullYear();
@@ -147,6 +154,8 @@ export default function Dashboard({ commesse, setup, setSetup }) {
         <KpiCard label="Netto mensile attivo" value={formatCurrency(nettoMensileAttivo)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`} accent="#22c55e" />
         <KpiCard label="Commesse attive" value={attive.length} sub={`su ${commesse.length} totali`} accent="#f59e0b" />
         <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
+        <KpiCard label="Lordo incassato YTD" value={formatCurrency(ytdLordo)} sub={`${storicoSenzaMeseCorrente.length} mesi registrati (escluso ${meseCorrente.split(" ")[0]})`} accent="#38bdf8" />
+        <KpiCard label="Netto incassato YTD" value={formatCurrency(ytdNetto)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}% applicato`} accent="#34d399" />
       </div>
 
       {/* Panoramica annuale */}
