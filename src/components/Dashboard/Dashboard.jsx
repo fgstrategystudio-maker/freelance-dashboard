@@ -215,25 +215,31 @@ export default function Dashboard({ commesse, setup, setSetup }) {
       {revenueHistory.length > 0 && (
         <div className={styles.incassatoCard}>
           <h2 className={styles.sectionTitle}>Incassato storico</h2>
-          <div className={styles.incassatoGrid}>
-            {revenueHistory.map((r, i) => (
-              <div key={i} className={styles.incassatoRow}>
-                <span className={styles.incassatoMese}>{r.mese}</span>
-                <span className={styles.incassatoLordo}>{formatCurrency(r.lordo)} lordo</span>
-                <span className={styles.incassatoNetto}>{formatCurrency(r.netto)} netto</span>
-              </div>
-            ))}
-          </div>
-          {storicoSenzaMeseCorrente.length > 0 && (
-            <div className={styles.incassatoTotale}>
-              <span className={styles.incassatoTotaleLabel}>
-                Totale fino a {meseCorrente.split(" ")[0]}
-                <span className={styles.incassatoTotaleSub}> (escluso mese corrente)</span>
-              </span>
-              <span className={styles.incassatoTotaleLordo}>{formatCurrency(ytdLordo)} lordo</span>
-              <span className={styles.incassatoTotaleNetto}>{formatCurrency(ytdNetto)} netto</span>
+          <div className={styles.incassatoLayout}>
+            <div className={styles.incassatoGrid}>
+              {revenueHistory.map((r, i) => (
+                <div key={i} className={styles.incassatoRow}>
+                  <span className={styles.incassatoMese}>{r.mese}</span>
+                  <span className={styles.incassatoLordo}>{formatCurrency(r.lordo)}</span>
+                  <span className={styles.incassatoNetto}>{formatCurrency(r.netto)}</span>
+                </div>
+              ))}
             </div>
-          )}
+            {storicoSenzaMeseCorrente.length > 0 && (
+              <div className={styles.incassatoYtd}>
+                <div className={styles.ytdBlock}>
+                  <span className={styles.ytdVal} style={{ color: "#38bdf8" }}>{formatCurrency(ytdLordo)}</span>
+                  <span className={styles.ytdLabel}>Lordo incassato YTD</span>
+                  <span className={styles.ytdSub}>{storicoSenzaMeseCorrente.length} mesi · escluso {meseCorrente.split(" ")[0]}</span>
+                </div>
+                <div className={styles.ytdBlock}>
+                  <span className={styles.ytdVal} style={{ color: "#34d399" }}>{formatCurrency(ytdNetto)}</span>
+                  <span className={styles.ytdLabel}>Netto incassato YTD</span>
+                  <span className={styles.ytdSub}>fattore {(setup.fattoreNetto * 100).toFixed(0)}%</span>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
