@@ -76,6 +76,23 @@ export function getMesePrecedente() {
   return `${MESI_IT[d.getMonth()]} ${d.getFullYear()}`;
 }
 
+export function getLordoPerMese(monthIdx, year, commesse) {
+  const monthStart = new Date(year, monthIdx, 1);
+  const monthEnd = new Date(year, monthIdx + 1, 0);
+  return commesse
+    .filter((c) => {
+      if (c.stato !== "In corso" && c.stato !== "In scadenza") return false;
+      const lordo = getCommessaLordoMensile(c);
+      if (!lordo) return false;
+      const start = c.inizio ? new Date(c.inizio) : null;
+      const end = c.fine ? new Date(c.fine) : null;
+      if (end && end < monthStart) return false;
+      if (start && start > monthEnd) return false;
+      return true;
+    })
+    .reduce((sum, c) => sum + (getCommessaLordoMensile(c) || 0), 0);
+}
+
 export function monthsBetween(startStr, endStr) {
   const start = new Date(startStr);
   const end = new Date(endStr);

@@ -11,6 +11,7 @@ import {
   calcNetto,
   getCommessaLordoMensile,
   getMeseCorrente,
+  getLordoPerMese,
 } from "../../utils/helpers";
 import styles from "./Dashboard.module.css";
 
@@ -92,10 +93,10 @@ export default function Dashboard({ commesse, setup, setSetup }) {
       lordo = 0;
     } else if (i === meseIdx) {
       tipo = "stimato";
-      lordo = lordoMensileAttivo;
+      lordo = getLordoPerMese(i, anno, commesse);
     } else {
       tipo = "proiezione";
-      lordo = lordoMensileAttivo;
+      lordo = getLordoPerMese(i, anno, commesse);
     }
     return { mese: MESI_SHORT[i], lordo, tipo, netto: calcNetto(lordo, setup.fattoreNetto) };
   });
@@ -188,6 +189,8 @@ export default function Dashboard({ commesse, setup, setSetup }) {
             <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`} />
             <Tooltip
               contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+              labelStyle={{ color: "#94a3b8" }}
+              itemStyle={{ color: "#e2e8f0" }}
               formatter={(v, name, props) => [
                 formatCurrency(v),
                 props.payload.tipo === "reale" ? "Incassato" : props.payload.tipo === "mancante" ? "Non registrato" : props.payload.tipo === "stimato" ? "Stimato" : "Proiezione",
