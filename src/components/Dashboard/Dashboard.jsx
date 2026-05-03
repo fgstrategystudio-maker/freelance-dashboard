@@ -1,15 +1,8 @@
 import { useState } from "react";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
+  PieChart, Pie, Cell,
+  BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend,
+  ReferenceLine,
 } from "recharts";
 import {
   formatCurrency,
@@ -18,11 +11,23 @@ import {
   calcNetto,
   getCommessaLordoMensile,
   getMeseCorrente,
-  getMesePrecedente,
 } from "../../utils/helpers";
 import styles from "./Dashboard.module.css";
 
-const STATO_ORDER = ["In corso", "In scadenza", "Da chiarire", "Sospeso", "Concluso", "Perso"];
+const MESI_IT = [
+  "Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno",
+  "Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre",
+];
+const MESI_SHORT = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+
+const TIPO_COLOR = {
+  reale:      "#22c55e",
+  stimato:    "#f59e0b",
+  proiezione: "#6366f1",
+  mancante:   "#2d3748",
+};
+
+const STATO_ORDER = ["In corso","In scadenza","Da chiarire","Sospeso","Concluso","Perso"];
 
 export default function Dashboard({ commesse, setup, setSetup }) {
   const attive = commesse.filter(
@@ -63,26 +68,42 @@ export default function Dashboard({ commesse, setup, setSetup }) {
     }));
 
   const revenueHistory = setup.incassatoStorico || [];
-
-  // Controlla se mese precedente manca dallo storico (più utile del mese corrente)
-  const mesePrecedente = getMesePrecedente();
   const meseCorrente = getMeseCorrente();
-  const meseMancanteLabel = revenueHistory.some(
-    (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
-  )
-    ? null
-    : revenueHistory.some(
-        (r) => r.mese.toLowerCase() === mesePrecedente.toLowerCase()
-      )
-    ? null
-    : mesePrecedente !== meseCorrente
-    ? mesePrecedente
-    : null;
-
-  // Mese corrente non nello storico → prompt
   const meseCorrManc = !revenueHistory.some(
     (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
   );
+
+  // — Panoramica annuale —
+  const now = new Date();
+  const anno = now.getFullYear();
+  const meseIdx = now.getMonth();
+
+  const annualData = MESI_IT.map((nome, i) => {
+    const label = `${nome} ${anno}`;
+    const recorded = revenueHistory.find(
+      (r) => r.mese.toLowerCase() === label.toLowerCase()
+    );
+    let tipo, lordo;
+    if (recorded) {
+      tipo = "reale";
+      lordo = recorded.lordo;
+    } else if (i < meseIdx) {
+      tipo = "mancante";
+      lordo = 0;
+    } else if (i === meseIdx) {
+      tipo = "stimato";
+      lordo = lordoMensileAttivo;
+    } else {
+      tipo = "proiezione";
+      lordo = lordoMensileAttivo;
+    }
+    return { mese: MESI_SHORT[i], lordo, tipo, netto: calcNetto(lordo, setup.fattoreNetto) };
+  });
+
+  const totReale = annualData.filter((d) => d.tipo === "reale").reduce((s, d) => s + d.lordo, 0);
+  const totProiezione = annualData.filter((d) => d.tipo !== "reale" && d.tipo !== "mancante").reduce((s, d) => s + d.lordo, 0);
+  const totAnno = totReale + totProiezione;
+  const mesiMancanti = annualData.filter((d) => d.tipo === "mancante").length;
 
   return (
     <div className={styles.page}>
@@ -121,30 +142,64 @@ export default function Dashboard({ commesse, setup, setSetup }) {
       )}
 
       <div className={styles.kpiGrid}>
-        <KpiCard
-          label="Lordo mensile attivo"
-          value={formatCurrency(lordoMensileAttivo)}
-          sub="commesse In corso + In scadenza"
-          accent="#6366f1"
-        />
-        <KpiCard
-          label="Netto mensile attivo"
-          value={formatCurrency(nettoMensileAttivo)}
-          sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`}
-          accent="#22c55e"
-        />
-        <KpiCard
-          label="Commesse attive"
-          value={attive.length}
-          sub={`su ${commesse.length} totali`}
-          accent="#f59e0b"
-        />
-        <KpiCard
-          label="Potenziale upsell"
-          value={formatCurrency(upsellOpportunities)}
-          sub="obiettivo mensile aggregato"
-          accent="#a78bfa"
-        />
+        <KpiCard label="Lordo mensile attivo" value={formatCurrency(lordoMensileAttivo)} sub="commesse In corso + In scadenza" accent="#6366f1" />
+        <KpiCard label="Netto mensile attivo" value={formatCurrency(nettoMensileAttivo)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`} accent="#22c55e" />
+        <KpiCard label="Commesse attive" value={attive.length} sub={`su ${commesse.length} totali`} accent="#f59e0b" />
+        <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
+      </div>
+
+      {/* Panoramica annuale */}
+      <div className={styles.annualCard}>
+        <div className={styles.annualHeader}>
+          <div>
+            <h2 className={styles.sectionTitle}>Panoramica {anno}</h2>
+            <p className={styles.annualSub}>
+              <span style={{ color: "#22c55e" }}>■</span> Registrato{" "}
+              <span style={{ color: "#f59e0b", marginLeft: 8 }}>■</span> Stimato (mese corrente){" "}
+              <span style={{ color: "#6366f1", marginLeft: 8 }}>■</span> Proiezione{" "}
+              <span style={{ color: "#2d3748", marginLeft: 8 }}>■</span> Mancante
+            </p>
+          </div>
+          <div className={styles.annualKpis}>
+            <div className={styles.annualKpi}>
+              <span className={styles.annualKpiVal} style={{ color: "#22c55e" }}>{formatCurrency(totReale)}</span>
+              <span className={styles.annualKpiLabel}>Incassato reale</span>
+            </div>
+            <div className={styles.annualKpi}>
+              <span className={styles.annualKpiVal} style={{ color: "#6366f1" }}>{formatCurrency(totProiezione)}</span>
+              <span className={styles.annualKpiLabel}>Proiezione restante</span>
+            </div>
+            <div className={styles.annualKpi}>
+              <span className={styles.annualKpiVal} style={{ color: "#e2e8f0" }}>{formatCurrency(totAnno)}</span>
+              <span className={styles.annualKpiLabel}>Totale anno stimato</span>
+            </div>
+          </div>
+        </div>
+
+        {mesiMancanti > 0 && (
+          <div className={styles.annualWarning}>
+            ⚠ {mesiMancanti} {mesiMancanti === 1 ? "mese passato non registrato" : "mesi passati non registrati"} — il totale anno è sottostimato. Aggiornali in Setup → Storico.
+          </div>
+        )}
+
+        <ResponsiveContainer width="100%" height={240}>
+          <BarChart data={annualData} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
+            <XAxis dataKey="mese" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`} />
+            <Tooltip
+              contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+              formatter={(v, name, props) => [
+                formatCurrency(v),
+                props.payload.tipo === "reale" ? "Incassato" : props.payload.tipo === "mancante" ? "Non registrato" : props.payload.tipo === "stimato" ? "Stimato" : "Proiezione",
+              ]}
+            />
+            <Bar dataKey="lordo" radius={[4, 4, 0, 0]}>
+              {annualData.map((entry, i) => (
+                <Cell key={i} fill={TIPO_COLOR[entry.tipo]} opacity={entry.tipo === "mancante" ? 0.4 : 1} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
 
       {revenueHistory.length > 0 && (
@@ -167,34 +222,13 @@ export default function Dashboard({ commesse, setup, setSetup }) {
           <h2 className={styles.sectionTitle}>Stato commesse</h2>
           <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie
-                data={statoCount}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                outerRadius={80}
-                innerRadius={45}
-                paddingAngle={3}
-              >
+              <Pie data={statoCount} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} innerRadius={45} paddingAngle={3}>
                 {statoCount.map((entry) => (
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  background: "#1a1f2e",
-                  border: "1px solid #2d3748",
-                  borderRadius: "8px",
-                  color: "#e2e8f0",
-                  fontSize: "13px",
-                }}
-              />
-              <Legend
-                formatter={(value) => (
-                  <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>
-                )}
-              />
+              <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} />
+              <Legend formatter={(value) => <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -203,33 +237,10 @@ export default function Dashboard({ commesse, setup, setSetup }) {
           <h2 className={styles.sectionTitle}>Fee mensile per cliente</h2>
           <ResponsiveContainer width="100%" height={220}>
             <BarChart data={barData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
-              <XAxis
-                dataKey="nome"
-                tick={{ fill: "#64748b", fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-              />
-              <YAxis
-                tick={{ fill: "#64748b", fontSize: 11 }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `${v}€`}
-              />
-              <Tooltip
-                contentStyle={{
-                  background: "#1a1f2e",
-                  border: "1px solid #2d3748",
-                  borderRadius: "8px",
-                  color: "#e2e8f0",
-                  fontSize: "13px",
-                }}
-                formatter={(v) => formatCurrency(v)}
-              />
-              <Legend
-                formatter={(value) => (
-                  <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>
-                )}
-              />
+              <XAxis dataKey="nome" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}€`} />
+              <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} formatter={(v) => formatCurrency(v)} />
+              <Legend formatter={(value) => <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>} />
               <Bar dataKey="Lordo" fill="#6366f1" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Netto" fill="#22c55e" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -249,10 +260,7 @@ export default function Dashboard({ commesse, setup, setSetup }) {
                     <div className={styles.scadenzeCliente}>{c.cliente}</div>
                     <div className={styles.scadenzeServizio}>{c.servizio}</div>
                   </div>
-                  <div
-                    className={styles.scadenzeDays}
-                    style={{ color: days <= 14 ? "#ef4444" : days <= 30 ? "#f59e0b" : "#94a3b8" }}
-                  >
+                  <div className={styles.scadenzeDays} style={{ color: days <= 14 ? "#ef4444" : days <= 30 ? "#f59e0b" : "#94a3b8" }}>
                     {days === 0 ? "Oggi" : `${days} giorni`}
                   </div>
                 </div>
@@ -268,15 +276,11 @@ export default function Dashboard({ commesse, setup, setSetup }) {
 function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }) {
   const [open, setOpen] = useState(false);
   const [lordo, setLordo] = useState(stimaLordo);
-  const [dismissed, setDismissed] = useState(false);
-
-  if (dismissed) return null;
 
   function handleAdd() {
     if (!lordo) return;
     const netto = Math.round(Number(lordo) * fattoreNetto);
     onAdd({ mese, lordo: Number(lordo), netto });
-    setDismissed(true);
   }
 
   return (
@@ -288,11 +292,10 @@ function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }
             <strong>{mese}</strong> non è ancora nello storico
           </div>
           <div className={styles.promptSub}>
-            Stimato da commesse attive: <strong>{new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(stimaLordo)}</strong>
+            Stimato da commesse attive:{" "}
+            <strong>{new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(stimaLordo)}</strong>
             {commesseAttive.length > 0 && (
-              <span className={styles.promptClients}>
-                {" "}({commesseAttive.map((c) => c.cliente).join(", ")})
-              </span>
+              <span className={styles.promptClients}> ({commesseAttive.map((c) => c.cliente).join(", ")})</span>
             )}
           </div>
         </div>
@@ -300,14 +303,9 @@ function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }
 
       <div className={styles.promptRight}>
         {!open ? (
-          <>
-            <button className={styles.promptBtnSecondary} onClick={() => setDismissed(true)}>
-              Ignora
-            </button>
-            <button className={styles.promptBtnPrimary} onClick={() => setOpen(true)}>
-              Registra incassato
-            </button>
-          </>
+          <button className={styles.promptBtnPrimary} onClick={() => setOpen(true)}>
+            Registra incassato
+          </button>
         ) : (
           <div className={styles.promptForm}>
             <div className={styles.promptInputWrap}>
@@ -327,12 +325,8 @@ function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }
               )}
             </div>
             <div className={styles.promptActions}>
-              <button className={styles.promptBtnSecondary} onClick={() => setOpen(false)}>
-                Annulla
-              </button>
-              <button className={styles.promptBtnPrimary} onClick={handleAdd}>
-                Aggiungi
-              </button>
+              <button className={styles.promptBtnSecondary} onClick={() => setOpen(false)}>Annulla</button>
+              <button className={styles.promptBtnPrimary} onClick={handleAdd}>Aggiungi</button>
             </div>
           </div>
         )}
@@ -344,9 +338,7 @@ function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }
 function KpiCard({ label, value, sub, accent }) {
   return (
     <div className={styles.kpiCard} style={{ borderTopColor: accent }}>
-      <div className={styles.kpiValue} style={{ color: accent }}>
-        {value}
-      </div>
+      <div className={styles.kpiValue} style={{ color: accent }}>{value}</div>
       <div className={styles.kpiLabel}>{label}</div>
       {sub && <div className={styles.kpiSub}>{sub}</div>}
     </div>
