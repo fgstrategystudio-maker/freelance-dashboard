@@ -278,67 +278,78 @@
   margin-bottom: 1.5rem;
 }
 
-.incassatoGrid {
+.incassatoLayout {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+  gap: 1.5rem;
+  align-items: flex-start;
   margin-top: 0.75rem;
+}
+
+.incassatoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem 1.5rem;
+  flex: 1;
 }
 
 .incassatoRow {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  font-size: 0.9rem;
+  gap: 0.75rem;
+  font-size: 0.875rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #1a1f2e;
 }
 
 .incassatoMese {
   color: #94a3b8;
-  min-width: 100px;
+  min-width: 80px;
   font-weight: 500;
+  font-size: 0.8rem;
 }
 
 .incassatoLordo {
   color: #e2e8f0;
+  font-size: 0.85rem;
 }
 
 .incassatoNetto {
   color: #22c55e;
   font-weight: 600;
+  font-size: 0.85rem;
 }
 
-.incassatoTotale {
+.incassatoYtd {
   display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  font-size: 0.9rem;
-  margin-top: 0.75rem;
-  padding-top: 0.75rem;
-  border-top: 1px solid #2d3748;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 150px;
+  flex-shrink: 0;
+  padding-left: 1.5rem;
+  border-left: 1px solid #1e2333;
 }
 
-.incassatoTotaleLabel {
-  color: #e2e8f0;
+.ytdBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ytdVal {
+  font-size: 1.3rem;
   font-weight: 700;
-  flex: 1;
-  min-width: 120px;
+  line-height: 1.2;
 }
 
-.incassatoTotaleSub {
-  color: #475569;
-  font-weight: 400;
+.ytdLabel {
   font-size: 0.78rem;
+  color: #94a3b8;
+  font-weight: 500;
 }
 
-.incassatoTotaleLordo {
-  color: #e2e8f0;
-  font-weight: 700;
-}
-
-.incassatoTotaleNetto {
-  color: #22c55e;
-  font-weight: 700;
+.ytdSub {
+  font-size: 0.72rem;
+  color: #475569;
 }
 
 .chartsGrid {
