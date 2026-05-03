@@ -154,8 +154,6 @@ export default function Dashboard({ commesse, setup, setSetup }) {
         <KpiCard label="Netto mensile attivo" value={formatCurrency(nettoMensileAttivo)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`} accent="#22c55e" />
         <KpiCard label="Commesse attive" value={attive.length} sub={`su ${commesse.length} totali`} accent="#f59e0b" />
         <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
-        <KpiCard label="Lordo incassato YTD" value={formatCurrency(ytdLordo)} sub={`${storicoSenzaMeseCorrente.length} mesi registrati (escluso ${meseCorrente.split(" ")[0]})`} accent="#38bdf8" />
-        <KpiCard label="Netto incassato YTD" value={formatCurrency(ytdNetto)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}% applicato`} accent="#34d399" />
       </div>
 
       {/* Panoramica annuale */}
@@ -226,6 +224,16 @@ export default function Dashboard({ commesse, setup, setSetup }) {
               </div>
             ))}
           </div>
+          {storicoSenzaMeseCorrente.length > 0 && (
+            <div className={styles.incassatoTotale}>
+              <span className={styles.incassatoTotaleLabel}>
+                Totale fino a {meseCorrente.split(" ")[0]}
+                <span className={styles.incassatoTotaleSub}> (escluso mese corrente)</span>
+              </span>
+              <span className={styles.incassatoTotaleLordo}>{formatCurrency(ytdLordo)} lordo</span>
+              <span className={styles.incassatoTotaleNetto}>{formatCurrency(ytdNetto)} netto</span>
+            </div>
+          )}
         </div>
       )}
 

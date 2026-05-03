@@ -307,6 +307,40 @@
   font-weight: 600;
 }
 
+.incassatoTotale {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #2d3748;
+  flex-wrap: wrap;
+}
+
+.incassatoTotaleLabel {
+  color: #e2e8f0;
+  font-weight: 700;
+  flex: 1;
+  min-width: 120px;
+}
+
+.incassatoTotaleSub {
+  color: #475569;
+  font-weight: 400;
+  font-size: 0.78rem;
+}
+
+.incassatoTotaleLordo {
+  color: #e2e8f0;
+  font-weight: 700;
+}
+
+.incassatoTotaleNetto {
+  color: #22c55e;
+  font-weight: 700;
+}
+
 .chartsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
