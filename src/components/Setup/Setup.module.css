@@ -177,6 +177,28 @@
   font-weight: 500;
 }
 
+.storicoInput {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 0.25rem 0.4rem;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.storicoInput:hover {
+  border-color: #2d3748;
+  background: #0f1117;
+}
+
+.storicoInput:focus {
+  border-color: #6366f1;
+  background: #0f1117;
+}
+
 .removeBtn {
   background: transparent;
   border: none;

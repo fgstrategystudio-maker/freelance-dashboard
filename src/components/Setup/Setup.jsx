@@ -84,6 +84,19 @@ export default function Setup({ setup, setSetup }) {
     }));
   }
 
+  function handleEditIncassato(idx, field, value) {
+    setSetup((prev) => {
+      const updated = prev.incassatoStorico.map((r, i) => {
+        if (i !== idx) return r;
+        const newRow = { ...r, [field]: field === "mese" ? value : Number(value) };
+        // ricalcola netto se cambia lordo
+        if (field === "lordo") newRow.netto = Math.round(Number(value) * prev.fattoreNetto);
+        return newRow;
+      });
+      return { ...prev, incassatoStorico: updated };
+    });
+  }
+
   function handleResetAll() {
     if (!confirm("Resettare tutti i dati? L'operazione è irreversibile.")) return;
     localStorage.clear();
@@ -195,9 +208,22 @@ export default function Setup({ setup, setSetup }) {
             </div>
             {storico.map((row, i) => (
               <div key={i} className={styles.storicoRow}>
-                <span className={styles.storicoMese}>{row.mese}</span>
-                <span>{formatCurrency(row.lordo)}</span>
-                <span style={{ color: "#22c55e", fontWeight: 600 }}>{formatCurrency(row.netto)}</span>
+                <input
+                  className={styles.storicoInput}
+                  value={row.mese}
+                  onChange={(e) => handleEditIncassato(i, "mese", e.target.value)}
+                  placeholder="es. Maggio 2026"
+                />
+                <input
+                  className={styles.storicoInput}
+                  type="number"
+                  value={row.lordo}
+                  min="0"
+                  onChange={(e) => handleEditIncassato(i, "lordo", e.target.value)}
+                />
+                <span style={{ color: "#22c55e", fontWeight: 600, fontSize: "0.875rem" }}>
+                  {formatCurrency(row.netto)}
+                </span>
                 <button
                   className={styles.removeBtn}
                   onClick={() => handleDeleteIncassato(i)}

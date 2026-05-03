@@ -19,6 +19,135 @@
   margin-top: 0.25rem;
 }
 
+/* Monthly prompt */
+.monthlyPrompt {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.promptLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.promptIcon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.promptTitle {
+  font-size: 0.9rem;
+  color: #e2e8f0;
+  line-height: 1.4;
+}
+
+.promptSub {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-top: 3px;
+}
+
+.promptClients {
+  color: #64748b;
+}
+
+.promptRight {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.promptBtnPrimary {
+  background: #6366f1;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1rem;
+  font-size: 0.825rem;
+  font-weight: 700;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.promptBtnPrimary:hover {
+  background: #4f46e5;
+}
+
+.promptBtnSecondary {
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #374151;
+  border-radius: 7px;
+  padding: 0.5rem 0.875rem;
+  font-size: 0.825rem;
+  font-weight: 600;
+  transition: color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.promptBtnSecondary:hover {
+  color: #94a3b8;
+  border-color: #6b7280;
+}
+
+.promptForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 220px;
+}
+
+.promptInputWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.promptLabel {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.promptInput {
+  background: #0f1117;
+  border: 1px solid #6366f1;
+  border-radius: 7px;
+  padding: 0.5rem 0.75rem;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  outline: none;
+  width: 100%;
+}
+
+.promptNetto {
+  font-size: 0.75rem;
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.promptActions {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
 .alertBanner {
   display: flex;
   align-items: flex-start;

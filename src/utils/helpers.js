@@ -60,6 +60,22 @@ export function getCommessaLordoMensile(commessa) {
   return null;
 }
 
+const MESI_IT = [
+  "Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno",
+  "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre",
+];
+
+export function getMeseCorrente() {
+  const now = new Date();
+  return `${MESI_IT[now.getMonth()]} ${now.getFullYear()}`;
+}
+
+export function getMesePrecedente() {
+  const now = new Date();
+  const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+  return `${MESI_IT[d.getMonth()]} ${d.getFullYear()}`;
+}
+
 export function monthsBetween(startStr, endStr) {
   const start = new Date(startStr);
   const end = new Date(endStr);

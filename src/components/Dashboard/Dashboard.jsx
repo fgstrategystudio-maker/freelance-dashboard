@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   PieChart,
   Pie,
@@ -16,12 +17,14 @@ import {
   getStatoColor,
   calcNetto,
   getCommessaLordoMensile,
+  getMeseCorrente,
+  getMesePrecedente,
 } from "../../utils/helpers";
 import styles from "./Dashboard.module.css";
 
 const STATO_ORDER = ["In corso", "In scadenza", "Da chiarire", "Sospeso", "Concluso", "Perso"];
 
-export default function Dashboard({ commesse, setup }) {
+export default function Dashboard({ commesse, setup, setSetup }) {
   const attive = commesse.filter(
     (c) => c.stato === "In corso" || c.stato === "In scadenza"
   );
@@ -61,6 +64,26 @@ export default function Dashboard({ commesse, setup }) {
 
   const revenueHistory = setup.incassatoStorico || [];
 
+  // Controlla se mese precedente manca dallo storico (più utile del mese corrente)
+  const mesePrecedente = getMesePrecedente();
+  const meseCorrente = getMeseCorrente();
+  const meseMancanteLabel = revenueHistory.some(
+    (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
+  )
+    ? null
+    : revenueHistory.some(
+        (r) => r.mese.toLowerCase() === mesePrecedente.toLowerCase()
+      )
+    ? null
+    : mesePrecedente !== meseCorrente
+    ? mesePrecedente
+    : null;
+
+  // Mese corrente non nello storico → prompt
+  const meseCorrManc = !revenueHistory.some(
+    (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
+  );
+
   return (
     <div className={styles.page}>
       <header className={styles.header}>
@@ -80,6 +103,21 @@ export default function Dashboard({ commesse, setup }) {
             ))}
           </div>
         </div>
+      )}
+
+      {meseCorrManc && (
+        <MonthlyPrompt
+          mese={meseCorrente}
+          stimaLordo={lordoMensileAttivo}
+          fattoreNetto={setup.fattoreNetto}
+          commesseAttive={attive}
+          onAdd={(entry) =>
+            setSetup((prev) => ({
+              ...prev,
+              incassatoStorico: [...(prev.incassatoStorico || []), entry],
+            }))
+          }
+        />
       )}
 
       <div className={styles.kpiGrid}>
@@ -223,6 +261,82 @@ export default function Dashboard({ commesse, setup }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function MonthlyPrompt({ mese, stimaLordo, fattoreNetto, commesseAttive, onAdd }) {
+  const [open, setOpen] = useState(false);
+  const [lordo, setLordo] = useState(stimaLordo);
+  const [dismissed, setDismissed] = useState(false);
+
+  if (dismissed) return null;
+
+  function handleAdd() {
+    if (!lordo) return;
+    const netto = Math.round(Number(lordo) * fattoreNetto);
+    onAdd({ mese, lordo: Number(lordo), netto });
+    setDismissed(true);
+  }
+
+  return (
+    <div className={styles.monthlyPrompt}>
+      <div className={styles.promptLeft}>
+        <span className={styles.promptIcon}>📅</span>
+        <div>
+          <div className={styles.promptTitle}>
+            <strong>{mese}</strong> non è ancora nello storico
+          </div>
+          <div className={styles.promptSub}>
+            Stimato da commesse attive: <strong>{new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(stimaLordo)}</strong>
+            {commesseAttive.length > 0 && (
+              <span className={styles.promptClients}>
+                {" "}({commesseAttive.map((c) => c.cliente).join(", ")})
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.promptRight}>
+        {!open ? (
+          <>
+            <button className={styles.promptBtnSecondary} onClick={() => setDismissed(true)}>
+              Ignora
+            </button>
+            <button className={styles.promptBtnPrimary} onClick={() => setOpen(true)}>
+              Registra incassato
+            </button>
+          </>
+        ) : (
+          <div className={styles.promptForm}>
+            <div className={styles.promptInputWrap}>
+              <label className={styles.promptLabel}>Lordo incassato (€)</label>
+              <input
+                type="number"
+                className={styles.promptInput}
+                value={lordo}
+                onChange={(e) => setLordo(e.target.value)}
+                min="0"
+                autoFocus
+              />
+              {lordo > 0 && (
+                <span className={styles.promptNetto}>
+                  Netto: {new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(Math.round(Number(lordo) * fattoreNetto))}
+                </span>
+              )}
+            </div>
+            <div className={styles.promptActions}>
+              <button className={styles.promptBtnSecondary} onClick={() => setOpen(false)}>
+                Annulla
+              </button>
+              <button className={styles.promptBtnPrimary} onClick={handleAdd}>
+                Aggiungi
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

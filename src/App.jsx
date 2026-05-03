@@ -18,7 +18,7 @@ export default function App() {
       <Sidebar view={view} onNavigate={setView} />
       <main className={styles.main}>
         {view === "dashboard" && (
-          <Dashboard commesse={commesse} setup={setup} />
+          <Dashboard commesse={commesse} setup={setup} setSetup={setSetup} />
         )}
         {view === "commesse" && (
           <Commesse
