@@ -126,8 +126,8 @@ export default function Dashboard({ commesse, setup, setSetup }) {
     return { mese: MESI_SHORT[i], lordo, tipo, netto: calcNetto(lordo, setup.fattoreNetto) };
   });
 
-  const totReale = annualData.filter((d) => d.tipo === "reale").reduce((s, d) => s + d.lordo, 0);
-  const totProiezione = annualData.filter((d) => d.tipo !== "reale" && d.tipo !== "mancante").reduce((s, d) => s + d.lordo, 0);
+  const totReale = annualData.filter((d) => d.tipo === "reale").reduce((s, d) => s + d.netto, 0);
+  const totProiezione = annualData.filter((d) => d.tipo !== "reale" && d.tipo !== "mancante").reduce((s, d) => s + d.netto, 0);
   const totAnno = totReale + totProiezione;
   const mesiMancanti = annualData.filter((d) => d.tipo === "mancante").length;
 
@@ -206,15 +206,15 @@ export default function Dashboard({ commesse, setup, setSetup }) {
           <div className={styles.annualKpis}>
             <div className={styles.annualKpi}>
               <span className={styles.annualKpiVal} style={{ color: "#22c55e" }}>{formatCurrency(totReale)}</span>
-              <span className={styles.annualKpiLabel}>Incassato reale</span>
+              <span className={styles.annualKpiLabel}>Netto reale</span>
             </div>
             <div className={styles.annualKpi}>
               <span className={styles.annualKpiVal} style={{ color: "#6366f1" }}>{formatCurrency(totProiezione)}</span>
-              <span className={styles.annualKpiLabel}>Proiezione restante</span>
+              <span className={styles.annualKpiLabel}>Proiezione netto</span>
             </div>
             <div className={styles.annualKpi}>
               <span className={styles.annualKpiVal} style={{ color: "#e2e8f0" }}>{formatCurrency(totAnno)}</span>
-              <span className={styles.annualKpiLabel}>Totale anno stimato</span>
+              <span className={styles.annualKpiLabel}>Totale netto anno</span>
             </div>
           </div>
         </div>
@@ -235,25 +235,25 @@ export default function Dashboard({ commesse, setup, setSetup }) {
               itemStyle={{ color: "#e2e8f0" }}
               formatter={(v, name, props) => [
                 formatCurrency(v),
-                props.payload.tipo === "reale" ? "Incassato" : props.payload.tipo === "mancante" ? "Non registrato" : props.payload.tipo === "stimato" ? "Stimato" : "Proiezione",
+                props.payload.tipo === "reale" ? "Netto reale" : props.payload.tipo === "mancante" ? "Non registrato" : props.payload.tipo === "stimato" ? "Netto stimato" : "Netto proiez.",
               ]}
             />
-            <Bar dataKey="lordo" radius={[4, 4, 0, 0]}>
+            <Bar dataKey="netto" radius={[4, 4, 0, 0]}>
               {annualData.map((entry, i) => {
                 let fill = TIPO_COLOR[entry.tipo];
-                if (breakEvenLordo && entry.tipo !== "reale" && entry.tipo !== "mancante" && entry.lordo < breakEvenLordo) {
+                if (totaleCostiFissi > 0 && entry.tipo !== "reale" && entry.tipo !== "mancante" && entry.netto < totaleCostiFissi) {
                   fill = "#ef4444";
                 }
                 return <Cell key={i} fill={fill} opacity={entry.tipo === "mancante" ? 0.4 : 1} />;
               })}
             </Bar>
-            {breakEvenLordo && (
+            {totaleCostiFissi > 0 && (
               <ReferenceLine
-                y={breakEvenLordo}
+                y={totaleCostiFissi}
                 stroke="#ef4444"
                 strokeDasharray="5 3"
                 strokeOpacity={0.55}
-                label={{ value: `soglia costi  ${formatCurrency(breakEvenLordo)}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10 }}
+                label={{ value: `costi fissi  ${formatCurrency(totaleCostiFissi)}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10 }}
               />
             )}
           </BarChart>
