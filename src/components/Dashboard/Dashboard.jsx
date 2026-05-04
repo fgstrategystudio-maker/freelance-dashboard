@@ -174,6 +174,14 @@ export default function Dashboard({ commesse, setup, setSetup }) {
         <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
         {totaleCostiFissi > 0 && (
           <KpiCard
+            label="Costi mensili"
+            value={formatCurrency(totaleCostiFissi)}
+            sub={`${costiFissi.length} voci · ${meseCorrente.split(" ")[0]}`}
+            accent="#f43f5e"
+          />
+        )}
+        {totaleCostiFissi > 0 && (
+          <KpiCard
             label="Profitto mensile"
             value={formatCurrency(profittoMensile)}
             sub={`netto − ${formatCurrency(totaleCostiFissi)} costi fissi`}
