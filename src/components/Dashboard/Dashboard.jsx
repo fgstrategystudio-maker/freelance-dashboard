@@ -69,17 +69,32 @@ export default function Dashboard({ commesse, setup, setSetup }) {
     }));
 
   const revenueHistory = setup.incassatoStorico || [];
+  const sortedStorico = [...revenueHistory].sort((a, b) => {
+    const [mA, yA = "0"] = a.mese.split(" ");
+    const [mB, yB = "0"] = b.mese.split(" ");
+    const yearDiff = Number(yA) - Number(yB);
+    if (yearDiff !== 0) return yearDiff;
+    return MESI_IT.indexOf(mA) - MESI_IT.indexOf(mB);
+  });
+
   const meseCorrente = getMeseCorrente();
   const meseCorrManc = !revenueHistory.some(
     (r) => r.mese.toLowerCase() === meseCorrente.toLowerCase()
   );
 
+  const costiFissi = setup.costiFissi || [];
+  const totaleCostiFissi = costiFissi.reduce((s, c) => s + c.importo, 0);
+  const profittoMensile = nettoMensileAttivo - totaleCostiFissi;
+
   // YTD escluso mese corrente
-  const storicoSenzaMeseCorrente = revenueHistory.filter(
+  const storicoSenzaMeseCorrente = sortedStorico.filter(
     (r) => r.mese.toLowerCase() !== meseCorrente.toLowerCase()
   );
   const ytdLordo = storicoSenzaMeseCorrente.reduce((s, r) => s + r.lordo, 0);
   const ytdNetto = storicoSenzaMeseCorrente.reduce((s, r) => s + r.netto, 0);
+  const ytdProfitto = totaleCostiFissi > 0
+    ? ytdNetto - totaleCostiFissi * storicoSenzaMeseCorrente.length
+    : null;
 
   // — Panoramica annuale —
   const now = new Date();
@@ -154,6 +169,14 @@ export default function Dashboard({ commesse, setup, setSetup }) {
         <KpiCard label="Netto mensile attivo" value={formatCurrency(nettoMensileAttivo)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`} accent="#22c55e" />
         <KpiCard label="Commesse attive" value={attive.length} sub={`su ${commesse.length} totali`} accent="#f59e0b" />
         <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
+        {totaleCostiFissi > 0 && (
+          <KpiCard
+            label="Profitto mensile"
+            value={formatCurrency(profittoMensile)}
+            sub={`netto − ${formatCurrency(totaleCostiFissi)} costi fissi`}
+            accent={profittoMensile >= 0 ? "#22c55e" : "#ef4444"}
+          />
+        )}
       </div>
 
       {/* Panoramica annuale */}
@@ -212,18 +235,37 @@ export default function Dashboard({ commesse, setup, setSetup }) {
         </ResponsiveContainer>
       </div>
 
-      {revenueHistory.length > 0 && (
+      {sortedStorico.length > 0 && (
         <div className={styles.incassatoCard}>
           <h2 className={styles.sectionTitle}>Incassato storico</h2>
           <div className={styles.incassatoLayout}>
             <div className={styles.incassatoGrid}>
-              {revenueHistory.map((r, i) => (
-                <div key={i} className={styles.incassatoRow}>
-                  <span className={styles.incassatoMese}>{r.mese}</span>
-                  <span className={styles.incassatoLordo}>{formatCurrency(r.lordo)}</span>
-                  <span className={styles.incassatoNetto}>{formatCurrency(r.netto)}</span>
-                </div>
-              ))}
+              {sortedStorico.map((r, i) => {
+                const meseShort = (() => {
+                  const [m, y] = r.mese.split(" ");
+                  const idx = MESI_IT.indexOf(m);
+                  return idx >= 0 ? `${MESI_SHORT[idx]} '${(y || "").slice(2)}` : r.mese;
+                })();
+                const profR = totaleCostiFissi > 0 ? r.netto - totaleCostiFissi : null;
+                return (
+                  <div key={i} className={styles.incassatoRow}>
+                    <span className={styles.incassatoMese}>{meseShort}</span>
+                    <span className={styles.incassatoLordo}>{formatCurrency(r.lordo)}</span>
+                    <span className={styles.incassatoNetto}>{formatCurrency(r.netto)}</span>
+                    {profR !== null && (
+                      <span
+                        className={styles.profittoTag}
+                        style={{
+                          color: profR >= 0 ? "#22c55e" : "#ef4444",
+                          background: profR >= 0 ? "rgba(34,197,94,0.08)" : "rgba(239,68,68,0.08)",
+                        }}
+                      >
+                        {profR >= 0 ? "+" : ""}{formatCurrency(profR)}
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
             </div>
             {storicoSenzaMeseCorrente.length > 0 && (
               <div className={styles.incassatoYtd}>
@@ -237,6 +279,15 @@ export default function Dashboard({ commesse, setup, setSetup }) {
                   <span className={styles.ytdLabel}>Netto incassato YTD</span>
                   <span className={styles.ytdSub}>fattore {(setup.fattoreNetto * 100).toFixed(0)}%</span>
                 </div>
+                {ytdProfitto !== null && (
+                  <div className={styles.ytdBlock}>
+                    <span className={styles.ytdVal} style={{ color: ytdProfitto >= 0 ? "#22c55e" : "#ef4444" }}>
+                      {ytdProfitto >= 0 ? "+" : ""}{formatCurrency(ytdProfitto)}
+                    </span>
+                    <span className={styles.ytdLabel}>Profitto YTD</span>
+                    <span className={styles.ytdSub}>netto − {formatCurrency(totaleCostiFissi)}/mese</span>
+                  </div>
+                )}
               </div>
             )}
           </div>

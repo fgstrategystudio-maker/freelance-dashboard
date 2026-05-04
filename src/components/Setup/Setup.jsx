@@ -49,6 +49,8 @@ export default function Setup({ setup, setSetup }) {
 
   const [newMese, setNewMese] = useState("");
   const [newLordo, setNewLordo] = useState("");
+  const [newCostoNome, setNewCostoNome] = useState("");
+  const [newCostoImporto, setNewCostoImporto] = useState("");
 
   function handleSaveSetup(e) {
     e.preventDefault();
@@ -97,6 +99,35 @@ export default function Setup({ setup, setSetup }) {
     });
   }
 
+  function handleAddCosto() {
+    if (!newCostoNome || !newCostoImporto) return;
+    setSetup((prev) => ({
+      ...prev,
+      costiFissi: [
+        ...(prev.costiFissi || []),
+        { id: Date.now(), nome: newCostoNome, importo: Number(newCostoImporto) },
+      ],
+    }));
+    setNewCostoNome("");
+    setNewCostoImporto("");
+  }
+
+  function handleDeleteCosto(id) {
+    setSetup((prev) => ({
+      ...prev,
+      costiFissi: (prev.costiFissi || []).filter((c) => c.id !== id),
+    }));
+  }
+
+  function handleEditCosto(id, field, value) {
+    setSetup((prev) => ({
+      ...prev,
+      costiFissi: (prev.costiFissi || []).map((c) =>
+        c.id !== id ? c : { ...c, [field]: field === "nome" ? value : Number(value) }
+      ),
+    }));
+  }
+
   function handleResetAll() {
     if (!confirm("Resettare tutti i dati? L'operazione è irreversibile.")) return;
     localStorage.clear();
@@ -106,6 +137,8 @@ export default function Setup({ setup, setSetup }) {
   const storico = setup.incassatoStorico || [];
   const totLordo = storico.reduce((s, r) => s + r.lordo, 0);
   const totNetto = storico.reduce((s, r) => s + r.netto, 0);
+  const costiFissi = setup.costiFissi || [];
+  const totaleCostiFissi = costiFissi.reduce((s, c) => s + c.importo, 0);
 
   return (
     <div className={styles.page}>
@@ -235,6 +268,66 @@ export default function Setup({ setup, setSetup }) {
             ))}
           </div>
         )}
+      </section>
+
+      <section className={styles.card} style={{ marginTop: "1rem" }}>
+        <div className={styles.historicoHeader}>
+          <h2 className={styles.sectionTitle}>Costi fissi mensili</h2>
+          {costiFissi.length > 0 && (
+            <div className={styles.totals}>
+              <span className={styles.totalItem}>
+                Totale: <strong>{formatCurrency(totaleCostiFissi)}</strong>/mese
+              </span>
+            </div>
+          )}
+        </div>
+
+        {costiFissi.length > 0 && (
+          <div className={styles.storicoTable}>
+            <div className={styles.costiHead}>
+              <span>Voce</span>
+              <span>€/mese</span>
+              <span></span>
+            </div>
+            {costiFissi.map((c) => (
+              <div key={c.id} className={styles.costiRow}>
+                <input
+                  className={styles.storicoInput}
+                  value={c.nome}
+                  onChange={(e) => handleEditCosto(c.id, "nome", e.target.value)}
+                />
+                <input
+                  className={styles.storicoInput}
+                  type="number"
+                  value={c.importo}
+                  min="0"
+                  onChange={(e) => handleEditCosto(c.id, "importo", e.target.value)}
+                />
+                <button className={styles.removeBtn} onClick={() => handleDeleteCosto(c.id)}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className={styles.addCostoRow}>
+          <input
+            className={styles.addCostoInput}
+            placeholder="Nome voce (es. Affitto)"
+            value={newCostoNome}
+            onChange={(e) => setNewCostoNome(e.target.value)}
+            style={{ flex: 1 }}
+          />
+          <input
+            className={styles.addCostoInput}
+            type="number"
+            placeholder="€/mese"
+            value={newCostoImporto}
+            onChange={(e) => setNewCostoImporto(e.target.value)}
+            min="0"
+            style={{ width: 90 }}
+          />
+          <button className={styles.addCostoBtn} onClick={handleAddCosto}>+ Aggiungi</button>
+        </div>
       </section>
 
       <section className={styles.card} style={{ marginTop: "1rem" }}>

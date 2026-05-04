@@ -11,6 +11,12 @@ export const INITIAL_SETUP = {
     aliquotaINPS: 26.23,
     bufferExtra: 5,
   },
+  costiFissi: [
+    { id: 1, nome: "Affitto", importo: 620 },
+    { id: 2, nome: "Benzina", importo: 100 },
+    { id: 3, nome: "Spesa", importo: 300 },
+    { id: 4, nome: "Varie", importo: 100 },
+  ],
 };
 
 export const INITIAL_COMMESSE = [

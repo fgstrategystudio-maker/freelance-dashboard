@@ -214,6 +214,74 @@
   background: rgba(239, 68, 68, 0.1);
 }
 
+.costiHead {
+  display: grid;
+  grid-template-columns: 1fr 120px 28px;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #1e2333;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.costiRow {
+  display: grid;
+  grid-template-columns: 1fr 120px 28px;
+  gap: 0.5rem;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #1e2333;
+}
+
+.costiRow:last-child {
+  border-bottom: none;
+}
+
+.addCostoRow {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  align-items: center;
+}
+
+.addCostoInput {
+  background: #0f1117;
+  border: 1px solid #2d3748;
+  border-radius: 6px;
+  padding: 0.45rem 0.65rem;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.addCostoInput:focus {
+  border-color: #6366f1;
+}
+
+.addCostoInput::placeholder {
+  color: #374151;
+}
+
+.addCostoBtn {
+  background: rgba(99, 102, 241, 0.12);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 6px;
+  padding: 0.45rem 0.875rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+
+.addCostoBtn:hover {
+  background: rgba(99, 102, 241, 0.22);
+}
+
 .fiscaleGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
