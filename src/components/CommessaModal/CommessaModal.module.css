@@ -11,8 +11,8 @@
 }
 
 .modal {
-  background: #13161f;
-  border: 1px solid #2d3748;
+  background: #111827;
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: 14px;
   width: 100%;
   max-width: 600px;
@@ -26,10 +26,10 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid #1e2333;
+  border-bottom: 1px solid rgba(255,255,255,.08);
   position: sticky;
   top: 0;
-  background: #13161f;
+  background: #111827;
   z-index: 1;
 }
 
@@ -51,7 +51,7 @@
 
 .closeBtn:hover {
   color: #e2e8f0;
-  background: #1e2333;
+  background: rgba(255,255,255,.08);
 }
 
 .form {
@@ -82,8 +82,8 @@
 }
 
 .input {
-  background: #0f1117;
-  border: 1px solid #2d3748;
+  background: #0a0f1e;
+  border: 1px solid rgba(255,255,255,.12);
   border-radius: 8px;
   padding: 0.6rem 0.875rem;
   color: #e2e8f0;
@@ -94,7 +94,7 @@
 }
 
 .input:focus {
-  border-color: #6366f1;
+  border-color: #c8a96e;
 }
 
 .input::placeholder {
@@ -134,7 +134,7 @@ select.input {
 }
 
 .saveBtn {
-  background: #6366f1;
+  background: #c8a96e;
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -145,7 +145,7 @@ select.input {
 }
 
 .saveBtn:hover {
-  background: #4f46e5;
+  background: #b8945a;
 }
 
 @media (max-width: 500px) {

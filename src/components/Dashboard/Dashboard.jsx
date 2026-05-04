@@ -24,8 +24,8 @@ const MESI_SHORT = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott",
 const TIPO_COLOR = {
   reale:      "#22c55e",
   stimato:    "#f59e0b",
-  proiezione: "#6366f1",
-  mancante:   "#2d3748",
+  proiezione: "#274d91",
+  mancante:   "#1a2540",
 };
 
 const STATO_ORDER = ["In corso","In scadenza","Da chiarire","Sospeso","Concluso","Perso"];
@@ -168,10 +168,10 @@ export default function Dashboard({ commesse, setup, setSetup }) {
       )}
 
       <div className={styles.kpiGrid}>
-        <KpiCard label="Lordo mensile attivo" value={formatCurrency(lordoMensileAttivo)} sub="commesse In corso + In scadenza" accent="#6366f1" />
+        <KpiCard label="Lordo mensile attivo" value={formatCurrency(lordoMensileAttivo)} sub="commesse In corso + In scadenza" accent="#c8a96e" />
         <KpiCard label="Netto mensile attivo" value={formatCurrency(nettoMensileAttivo)} sub={`fattore ${(setup.fattoreNetto * 100).toFixed(0)}%`} accent="#22c55e" />
         <KpiCard label="Commesse attive" value={attive.length} sub={`su ${commesse.length} totali`} accent="#f59e0b" />
-        <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#a78bfa" />
+        <KpiCard label="Potenziale upsell" value={formatCurrency(upsellOpportunities)} sub="obiettivo mensile aggregato" accent="#7b9cd4" />
         {totaleCostiFissi > 0 && (
           <KpiCard
             label="Costi mensili"
@@ -198,8 +198,8 @@ export default function Dashboard({ commesse, setup, setSetup }) {
             <p className={styles.annualSub}>
               <span style={{ color: "#22c55e" }}>■</span> Registrato{" "}
               <span style={{ color: "#f59e0b", marginLeft: 8 }}>■</span> Stimato{" "}
-              <span style={{ color: "#6366f1", marginLeft: 8 }}>■</span> Proiezione{" "}
-              <span style={{ color: "#2d3748", marginLeft: 8 }}>■</span> Mancante
+              <span style={{ color: "#274d91", marginLeft: 8 }}>■</span> Proiezione{" "}
+              <span style={{ color: "#1a2540", marginLeft: 8 }}>■</span> Mancante
               {breakEvenLordo && <><span style={{ color: "#ef4444", marginLeft: 8 }}>■</span>{" "}Sotto soglia costi</>}
             </p>
           </div>
@@ -209,7 +209,7 @@ export default function Dashboard({ commesse, setup, setSetup }) {
               <span className={styles.annualKpiLabel}>Netto reale</span>
             </div>
             <div className={styles.annualKpi}>
-              <span className={styles.annualKpiVal} style={{ color: "#6366f1" }}>{formatCurrency(totProiezione)}</span>
+              <span className={styles.annualKpiVal} style={{ color: "#274d91" }}>{formatCurrency(totProiezione)}</span>
               <span className={styles.annualKpiLabel}>Proiezione netto</span>
             </div>
             <div className={styles.annualKpi}>
@@ -230,7 +230,7 @@ export default function Dashboard({ commesse, setup, setSetup }) {
             <XAxis dataKey="mese" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
             <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000).toFixed(0)}k€`} />
             <Tooltip
-              contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
+              contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,.12)", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }}
               labelStyle={{ color: "#94a3b8" }}
               itemStyle={{ color: "#e2e8f0" }}
               formatter={(v, name, props) => [
@@ -329,7 +329,7 @@ export default function Dashboard({ commesse, setup, setSetup }) {
                   <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} />
+              <Tooltip contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,.12)", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} />
               <Legend formatter={(value) => <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>} />
             </PieChart>
           </ResponsiveContainer>
@@ -341,9 +341,9 @@ export default function Dashboard({ commesse, setup, setSetup }) {
             <BarChart data={barData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
               <XAxis dataKey="nome" tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fill: "#64748b", fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v) => `${v}€`} />
-              <Tooltip contentStyle={{ background: "#1a1f2e", border: "1px solid #2d3748", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} formatter={(v) => formatCurrency(v)} />
+              <Tooltip contentStyle={{ background: "#111827", border: "1px solid rgba(255,255,255,.12)", borderRadius: "8px", color: "#e2e8f0", fontSize: "13px" }} formatter={(v) => formatCurrency(v)} />
               <Legend formatter={(value) => <span style={{ color: "#94a3b8", fontSize: "12px" }}>{value}</span>} />
-              <Bar dataKey="Lordo" fill="#6366f1" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="Lordo" fill="#c8a96e" radius={[4, 4, 0, 0]} />
               <Bar dataKey="Netto" fill="#22c55e" radius={[4, 4, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
