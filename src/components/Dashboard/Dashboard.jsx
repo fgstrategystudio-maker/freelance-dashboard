@@ -85,6 +85,9 @@ export default function Dashboard({ commesse, setup, setSetup }) {
   const costiFissi = setup.costiFissi || [];
   const totaleCostiFissi = costiFissi.reduce((s, c) => s + c.importo, 0);
   const profittoMensile = nettoMensileAttivo - totaleCostiFissi;
+  const breakEvenLordo = totaleCostiFissi > 0
+    ? Math.round(totaleCostiFissi / setup.fattoreNetto)
+    : null;
 
   // YTD escluso mese corrente
   const storicoSenzaMeseCorrente = sortedStorico.filter(
@@ -186,9 +189,10 @@ export default function Dashboard({ commesse, setup, setSetup }) {
             <h2 className={styles.sectionTitle}>Panoramica {anno}</h2>
             <p className={styles.annualSub}>
               <span style={{ color: "#22c55e" }}>■</span> Registrato{" "}
-              <span style={{ color: "#f59e0b", marginLeft: 8 }}>■</span> Stimato (mese corrente){" "}
+              <span style={{ color: "#f59e0b", marginLeft: 8 }}>■</span> Stimato{" "}
               <span style={{ color: "#6366f1", marginLeft: 8 }}>■</span> Proiezione{" "}
               <span style={{ color: "#2d3748", marginLeft: 8 }}>■</span> Mancante
+              {breakEvenLordo && <><span style={{ color: "#ef4444", marginLeft: 8 }}>■</span>{" "}Sotto soglia costi</>}
             </p>
           </div>
           <div className={styles.annualKpis}>
@@ -227,10 +231,23 @@ export default function Dashboard({ commesse, setup, setSetup }) {
               ]}
             />
             <Bar dataKey="lordo" radius={[4, 4, 0, 0]}>
-              {annualData.map((entry, i) => (
-                <Cell key={i} fill={TIPO_COLOR[entry.tipo]} opacity={entry.tipo === "mancante" ? 0.4 : 1} />
-              ))}
+              {annualData.map((entry, i) => {
+                let fill = TIPO_COLOR[entry.tipo];
+                if (breakEvenLordo && entry.tipo !== "reale" && entry.tipo !== "mancante" && entry.lordo < breakEvenLordo) {
+                  fill = "#ef4444";
+                }
+                return <Cell key={i} fill={fill} opacity={entry.tipo === "mancante" ? 0.4 : 1} />;
+              })}
             </Bar>
+            {breakEvenLordo && (
+              <ReferenceLine
+                y={breakEvenLordo}
+                stroke="#ef4444"
+                strokeDasharray="5 3"
+                strokeOpacity={0.55}
+                label={{ value: `soglia costi  ${formatCurrency(breakEvenLordo)}`, position: "insideTopRight", fill: "#ef4444", fontSize: 10 }}
+              />
+            )}
           </BarChart>
         </ResponsiveContainer>
       </div>
